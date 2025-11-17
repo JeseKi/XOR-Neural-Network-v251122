@@ -11,12 +11,16 @@ class XORNeuralNetwork:
         # init constant
         self.rng: Generator = random.default_rng(seed)
         self.learning_rate: float = learning_rate
+        
         self.sigmoid: Callable[[float], float] = lambda x: 1 / (1 + np.exp(-x))
         
         # init variable
         self.input_to_hidden_weights: np.ndarray = self.rng.uniform(size=(2, 2))
-        self.hidden_to_output_weights: np.ndarray = self.rng.uniform(size=(1, 2))
+        self.input_to_hidden_outputs: np.ndarray = np.zeros(shape=(2,))
         self.input_to_hiden_bias: np.ndarray = self.rng.uniform(size=(2,))
+        
+        self.hidden_to_output_weights: np.ndarray = self.rng.uniform(size=(1, 2))
+        self.hidden_to_output_outputs: np.ndarray = np.zeros(shape=(1,))
         self.hidden_to_output_bias: np.ndarray = self.rng.uniform(size=(1,))
         
     def forward(self, input: Input) -> Output:
@@ -27,11 +31,13 @@ class XORNeuralNetwork:
         
         a1 = self.sigmoid(z1 + z2)
         a2 = self.sigmoid(z3 + z4)
+        self.input_to_hidden_outputs = np.array([a1, a2])
         
         z5 = a1 * self.hidden_to_output_weights[0][0] + self.hidden_to_output_bias[0]
         z6 = a2 * self.hidden_to_output_weights[0][1] + self.hidden_to_output_bias[0]
         
         a3 = self.sigmoid(z5 + z6)
+        self.hidden_to_output_outputs = np.array([a3])
         
         return Output(y = a3)
         

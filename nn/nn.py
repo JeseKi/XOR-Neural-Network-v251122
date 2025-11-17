@@ -16,20 +16,20 @@ class XORNeuralNetwork:
         # init variable
         self.input_to_hidden_weights: np.ndarray = self.rng.uniform(size=(2, 2))
         self.hidden_to_output_weights: np.ndarray = self.rng.uniform(size=(1, 2))
-        self.input_to_hiden_bias: np.ndarray = self.rng.uniform(size=(2, 1))
-        self.hidden_to_output_bias: np.ndarray = self.rng.uniform(size=(1, 1))
+        self.input_to_hiden_bias: np.ndarray = self.rng.uniform(size=(2,))
+        self.hidden_to_output_bias: np.ndarray = self.rng.uniform(size=(1,))
         
     def forward(self, input: Input) -> Output:
-        z1 = input.x1 * self.input_to_hidden_weights[0][0] + self.input_to_hiden_bias[0][0]
-        z2 = input.x2 * self.input_to_hidden_weights[0][1] + self.input_to_hiden_bias[0][1]
-        z3 = input.x1 * self.input_to_hidden_weights[1][0] + self.input_to_hiden_bias[1][0]
-        z4 = input.x2 * self.input_to_hidden_weights[1][1] + self.input_to_hiden_bias[1][1]
+        z1 = input.x1 * self.input_to_hidden_weights[0][0] + self.input_to_hiden_bias[0]
+        z2 = input.x2 * self.input_to_hidden_weights[0][1] + self.input_to_hiden_bias[0]
+        z3 = input.x1 * self.input_to_hidden_weights[1][0] + self.input_to_hiden_bias[1]
+        z4 = input.x2 * self.input_to_hidden_weights[1][1] + self.input_to_hiden_bias[1]
         
         a1 = self.sigmoid(z1 + z2)
         a2 = self.sigmoid(z3 + z4)
         
-        z5 = a1 * self.hidden_to_output_weights[0][0] + self.hidden_to_output_bias[0][0]
-        z6 = a2 * self.hidden_to_output_weights[0][1] + self.hidden_to_output_bias[0][1]
+        z5 = a1 * self.hidden_to_output_weights[0][0] + self.hidden_to_output_bias[0]
+        z6 = a2 * self.hidden_to_output_weights[0][1] + self.hidden_to_output_bias[0]
         
         a3 = self.sigmoid(z5 + z6)
         

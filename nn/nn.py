@@ -29,15 +29,14 @@ class XORNeuralNetwork:
         z3 = input.x1 * self.input_to_hidden_weights[1][0] + self.input_to_hiden_bias[1]
         z4 = input.x2 * self.input_to_hidden_weights[1][1] + self.input_to_hiden_bias[1]
         
-        a1 = self.sigmoid(z1 + z2)
-        a2 = self.sigmoid(z3 + z4)
-        self.input_to_hidden_outputs = np.array([a1, a2])
+        h1 = self.sigmoid(z1 + z2)
+        h2 = self.sigmoid(z3 + z4)
+        self.input_to_hidden_outputs = np.array([h1, h2])
         
-        z5 = a1 * self.hidden_to_output_weights[0][0] + self.hidden_to_output_bias[0]
-        z6 = a2 * self.hidden_to_output_weights[0][1] + self.hidden_to_output_bias[0]
+        z5 = h1 * self.hidden_to_output_weights[0][0] + self.hidden_to_output_bias[0]
+        z6 = h2 * self.hidden_to_output_weights[0][1] + self.hidden_to_output_bias[0]
         
-        a3 = self.sigmoid(z5 + z6)
-        self.hidden_to_output_outputs = np.array([a3])
+        h3 = self.sigmoid(z5 + z6)
+        self.hidden_to_output_outputs = np.array([h3])
         
-        return Output(y = a3)
-        
+        return Output(y = h3)

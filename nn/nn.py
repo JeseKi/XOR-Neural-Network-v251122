@@ -19,7 +19,7 @@ class XORNeuralNetwork:
         self.input_to_hidden_outputs: np.ndarray = np.zeros(shape=(2,))
         self.input_to_hiden_bias: np.ndarray = self.rng.uniform(size=(2,))
         
-        self.hidden_to_output_weights: np.ndarray = self.rng.uniform(size=(1, 2))
+        self.hidden_to_output_weights: np.ndarray = self.rng.uniform(size=(2,))
         self.hidden_to_output_outputs: np.ndarray = np.zeros(shape=(1,))
         self.hidden_to_output_bias: np.ndarray = self.rng.uniform(size=(1,))
         
@@ -33,8 +33,8 @@ class XORNeuralNetwork:
         h2 = self.sigmoid(z3 + z4)
         self.input_to_hidden_outputs = np.array([h1, h2])
         
-        z5 = h1 * self.hidden_to_output_weights[0][0] + self.hidden_to_output_bias[0]
-        z6 = h2 * self.hidden_to_output_weights[0][1] + self.hidden_to_output_bias[0]
+        z5 = h1 * self.hidden_to_output_weights[0] + self.hidden_to_output_bias[0]
+        z6 = h2 * self.hidden_to_output_weights[1] + self.hidden_to_output_bias[0]
         
         h3 = self.sigmoid(z5 + z6)
         self.hidden_to_output_outputs = np.array([h3])

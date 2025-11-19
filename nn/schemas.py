@@ -1,6 +1,5 @@
-from enum import StrEnum
-
 from pydantic import BaseModel, ConfigDict
+import numpy as np
 
 
 class Input(BaseModel):
@@ -14,13 +13,12 @@ class Output(BaseModel):
     y: float
 
 
-class NeuronType(StrEnum):
-    INPUT = "input"
-    HIDDEN = "hidden"
-    OUTPUT = "output"
+class History(BaseModel):
+    model_config = ConfigDict(
+        arbitrary_types_allowed=True, json_encoders={np.ndarray: lambda x: x.tolist()}
+    )
 
-
-class LayerType(StrEnum):
-    INPUT = "input"
-    HIDDEN = "hidden"
-    OUTPUT = "output"
+    epoch: int
+    loss: float
+    input_to_hidden_weights: np.ndarray
+    hidden_to_output_weights: np.ndarray

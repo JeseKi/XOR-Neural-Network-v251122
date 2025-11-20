@@ -22,3 +22,5 @@ class History(BaseModel):
     loss: float
     input_to_hidden_weights: np.ndarray
     hidden_to_output_weights: np.ndarray
+    input_to_hidden_bias: np.ndarray
+    hidden_to_output_bias: np.ndarray

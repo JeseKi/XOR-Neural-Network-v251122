@@ -25,7 +25,7 @@ class XORNeuralNetwork:
         # init variable
         self.input_to_hidden_weights: np.ndarray = self.rng.uniform(size=(2, 2))
         self.input_to_hidden_outputs: np.ndarray = np.zeros(shape=(2,))
-        self.input_to_hiden_bias: np.ndarray = self.rng.uniform(size=(2,))
+        self.input_to_hidden_bias: np.ndarray = self.rng.uniform(size=(2,))
 
         self.hidden_to_output_weights: np.ndarray = self.rng.uniform(size=(2,))
         self.hidden_to_output_outputs: np.ndarray = np.zeros(shape=(1,))
@@ -37,8 +37,8 @@ class XORNeuralNetwork:
         z3 = input.x1 * self.input_to_hidden_weights[1][0]
         z4 = input.x2 * self.input_to_hidden_weights[1][1]
 
-        h1 = self.sigmoid(z1 + z2 + self.input_to_hiden_bias[0])
-        h2 = self.sigmoid(z3 + z4 + self.input_to_hiden_bias[1])
+        h1 = self.sigmoid(z1 + z2 + self.input_to_hidden_bias[0])
+        h2 = self.sigmoid(z3 + z4 + self.input_to_hidden_bias[1])
         self.input_to_hidden_outputs = np.array([h1, h2])
 
         z5 = h1 * self.hidden_to_output_weights[0]
@@ -87,10 +87,10 @@ class XORNeuralNetwork:
 
         self.input_to_hidden_weights[0][0] -= self.learning_rate * gradient_n1_w1
         self.input_to_hidden_weights[0][1] -= self.learning_rate * gradient_n1_w2
-        self.input_to_hiden_bias[0] -= self.learning_rate * gradient_b1
+        self.input_to_hidden_bias[0] -= self.learning_rate * gradient_b1
 
         self.input_to_hidden_weights[1][0] -= self.learning_rate * gradient_n2_w1
         self.input_to_hidden_weights[1][1] -= self.learning_rate * gradient_n2_w2
-        self.input_to_hiden_bias[1] -= self.learning_rate * gradient_b2
+        self.input_to_hidden_bias[1] -= self.learning_rate * gradient_b2
 
         return loss

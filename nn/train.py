@@ -22,10 +22,10 @@ def train(
                 History(
                     epoch=epoch,
                     loss=total_loss / len(INPUT),
-                    input_to_hidden_weights=neural_network.input_to_hidden_weights.copy(),
-                    hidden_to_output_weights=neural_network.hidden_to_output_weights.copy(),
-                    input_to_hidden_bias=neural_network.input_to_hidden_bias.copy(),
-                    hidden_to_output_bias=neural_network.hidden_to_output_bias.copy(),
+                    input_to_hidden_weights=neural_network.hidden_weights.copy(),
+                    hidden_to_output_weights=neural_network.output_weights.copy(),
+                    input_to_hidden_bias=neural_network.hidden_bias.copy(),
+                    hidden_to_output_bias=neural_network.output_bias.copy(),
                 )
             )
     return history

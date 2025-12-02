@@ -9,7 +9,7 @@ class Input(BaseModel):
     x2: float
 
 
-class Output(BaseModel):
+class Target(BaseModel):
     y: float
 
 

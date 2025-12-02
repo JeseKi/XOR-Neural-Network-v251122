@@ -14,7 +14,7 @@ def train(
         total_loss: float = 0.0
         for input, answer in zip(INPUT, OUTPUT):
             neural_network.forward(input)
-            loss: float = neural_network.backward(input=input, answer=answer)
+            loss: float = neural_network.backward(input=input, target=answer)
             total_loss += loss
         if epoch % record_interval == 0:
             print(f"Epoch {epoch} - Loss: {total_loss / len(INPUT)}")
@@ -22,10 +22,10 @@ def train(
                 History(
                     epoch=epoch,
                     loss=total_loss / len(INPUT),
-                    input_to_hidden_weights=neural_network.hidden_weights.copy(),
-                    hidden_to_output_weights=neural_network.output_weights.copy(),
-                    input_to_hidden_bias=neural_network.hidden_bias.copy(),
-                    hidden_to_output_bias=neural_network.output_bias.copy(),
+                    input_to_hidden_weights=neural_network.W1.copy(),
+                    hidden_to_output_weights=neural_network.W2.copy(),
+                    input_to_hidden_bias=neural_network.W1_bias.copy(),
+                    hidden_to_output_bias=neural_network.W2_bias.copy(),
                 )
             )
     return history

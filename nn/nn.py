@@ -51,21 +51,21 @@ class XORNeuralNetwork:
         grad_loss = self.mean_squared_error_derivative(
             self.h2[0], target.y
         )
-        grad_output_outputs = self.sigmoid_derivative(
+        grad_h2 = self.sigmoid_derivative(
             self.h2[0]
         )
-        grad_output = grad_loss * grad_output_outputs # shape(1, 1)
-        grad_output_weights = grad_output * self.h1 # shape(1, 2)
-        grad_output_bias = grad_output # shape(1, 1)
+        grad_output = grad_loss * grad_h2 # shape(1, 1)
+        grad_W2 = grad_output * self.h1 # shape(1, 2)
+        grad_bias2 = grad_output # shape(1, 1)
 
-        grad_hidden_outputs = self.sigmoid_derivative(self.h1) # shape(1, 2)
-        grad_hidden = (grad_output @ self.W2.T) * grad_hidden_outputs # shape(1, 2)
-        grad_hidden_weights = input_hidden_arr.T @ grad_hidden # shape(2, 2)
-        grad_hidden_bias = grad_hidden # shape(1, 2)
+        grad_h1 = self.sigmoid_derivative(self.h1) # shape(1, 2)
+        grad_hidden = (grad_output @ self.W2.T) * grad_h1 # shape(1, 2)
+        grad_W1 = input_hidden_arr.T @ grad_hidden # shape(2, 2)
+        grad_bias1 = grad_hidden # shape(1, 2)
 
-        self.W1 -= self.learning_rate * grad_hidden_weights
-        self.bias1 -= self.learning_rate * grad_hidden_bias
-        self.W2 -= self.learning_rate * grad_output_weights.T
-        self.bias2 -= self.learning_rate * grad_output_bias
+        self.W1 -= self.learning_rate * grad_W1
+        self.bias1 -= self.learning_rate * grad_bias1
+        self.W2 -= self.learning_rate * grad_W2.T
+        self.bias2 -= self.learning_rate * grad_bias2
 
         return loss

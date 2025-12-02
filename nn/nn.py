@@ -13,8 +13,8 @@ class XORNeuralNetwork:
         self.rng: Generator = random.default_rng(seed)
         self.learning_rate: float = learning_rate
 
-        self.sigmoid: Callable[[float], float] = lambda x: 1 / (1 + np.exp(-x))
-        self.sigmoid_derivative: Callable[[float], float] = lambda x: x * (1 - x)
+        self.sigmoid: Callable[[np.ndarray], np.ndarray] = lambda x: 1 / (1 + np.exp(-x))
+        self.sigmoid_derivative: Callable[[np.ndarray], np.ndarray] = lambda x: x * (1 - x)
         self.mean_squared_error: Callable[[float, float], float] = (
             lambda output, answer: 1 / 2 * (output - answer) ** 2
         )
@@ -24,32 +24,28 @@ class XORNeuralNetwork:
 
         # init variable
         self.input_to_hidden_weights: np.ndarray = self.rng.uniform(size=(2, 2))
-        self.input_to_hidden_outputs: np.ndarray = np.zeros(shape=(2,))
-        self.input_to_hidden_bias: np.ndarray = self.rng.uniform(size=(2,))
+        self.input_to_hidden_outputs: np.ndarray = np.zeros(shape=(1,2))
+        self.input_to_hidden_bias: np.ndarray = self.rng.uniform(size=(1,2))
 
-        self.hidden_to_output_weights: np.ndarray = self.rng.uniform(size=(2,))
-        self.hidden_to_output_outputs: np.ndarray = np.zeros(shape=(1,))
-        self.hidden_to_output_bias: np.ndarray = self.rng.uniform(size=(1,))
+        self.hidden_to_output_weights: np.ndarray = self.rng.uniform(size=(2, 1))
+        self.hidden_to_output_outputs: np.ndarray = np.zeros(shape=(1,1))
+        self.hidden_to_output_bias: np.ndarray = self.rng.uniform(size=(1,1))
 
     def forward(self, input: Input) -> Output:
-        z1 = input.x1 * self.input_to_hidden_weights[0][0]
-        z2 = input.x2 * self.input_to_hidden_weights[0][1]
-        z3 = input.x1 * self.input_to_hidden_weights[1][0]
-        z4 = input.x2 * self.input_to_hidden_weights[1][1]
+        input_arr = np.array([[input.x1, input.x2]]) # shape(1, 2)
 
-        h1 = self.sigmoid(z1 + z2 + self.input_to_hidden_bias[0])
-        h2 = self.sigmoid(z3 + z4 + self.input_to_hidden_bias[1])
-        self.input_to_hidden_outputs = np.array([h1, h2])
+        z1 = input_arr @ self.input_to_hidden_weights + self.input_to_hidden_bias # shape(1, 2)
+        h1 = self.sigmoid(z1)
+        self.input_to_hidden_outputs = h1
 
-        z5 = h1 * self.hidden_to_output_weights[0]
-        z6 = h2 * self.hidden_to_output_weights[1]
+        z2 = h1 @ self.hidden_to_output_weights + self.hidden_to_output_bias # shape(1, 1)
+        h2 = self.sigmoid(z2)
+        self.hidden_to_output_outputs = h2
 
-        h3 = self.sigmoid(z5 + z6 + self.hidden_to_output_bias[0])
-        self.hidden_to_output_outputs = np.array([h3])
-
-        return Output(y=h3)
+        return Output(y=h2[0])
 
     def backward(self, input: Input, answer: Output) -> float:
+        input_hidden_arr = np.array([[input.x1, input.x2]]) # shape(1, 2)
         loss = self.mean_squared_error(self.hidden_to_output_outputs[0], answer.y)
 
         gradient_loss = self.mean_squared_error_derivative(
@@ -58,39 +54,18 @@ class XORNeuralNetwork:
         gradient_output_local = self.sigmoid_derivative(
             self.hidden_to_output_outputs[0]
         )
-        gradient_output = gradient_loss * gradient_output_local
-        gradient_output_w1 = gradient_output * self.input_to_hidden_outputs[0]
-        gradient_output_w2 = gradient_output * self.input_to_hidden_outputs[1]
-        gradient_b3 = gradient_output
+        gradient_output = gradient_loss * gradient_output_local # shape(1, 1)
+        gradient_output_weights = gradient_output * self.input_to_hidden_outputs # shape(1, 2)
+        gradient_b3 = gradient_output # shape(1, 1)
 
-        gradient_n1_local = self.sigmoid_derivative(self.input_to_hidden_outputs[0])
-        gradient_n2_local = self.sigmoid_derivative(self.input_to_hidden_outputs[1])
+        gradient_hidden_local = self.sigmoid_derivative(self.input_to_hidden_outputs) # shape(1, 2)
+        gradient_hidden = (gradient_output @ self.hidden_to_output_weights.T) * gradient_hidden_local # shape(1, 2)
+        gradient_hidden_weights = input_hidden_arr.T @ gradient_hidden # shape(2, 2)
+        gradient_hidden_bias = gradient_hidden # shape(1, 2)
 
-        gradient_n1 = (
-            gradient_output * self.hidden_to_output_weights[0] * gradient_n1_local
-        )
-        gradient_n2 = (
-            gradient_output * self.hidden_to_output_weights[1] * gradient_n2_local
-        )
-
-        gradient_n1_w1 = gradient_n1 * input.x1
-        gradient_n1_w2 = gradient_n1 * input.x2
-        gradient_b1 = gradient_n1 * 1
-
-        gradient_n2_w1 = gradient_n2 * input.x1
-        gradient_n2_w2 = gradient_n2 * input.x2
-        gradient_b2 = gradient_n2 * 1
-
-        self.hidden_to_output_weights[0] -= self.learning_rate * gradient_output_w1
-        self.hidden_to_output_weights[1] -= self.learning_rate * gradient_output_w2
-        self.hidden_to_output_bias[0] -= self.learning_rate * gradient_b3
-
-        self.input_to_hidden_weights[0][0] -= self.learning_rate * gradient_n1_w1
-        self.input_to_hidden_weights[0][1] -= self.learning_rate * gradient_n1_w2
-        self.input_to_hidden_bias[0] -= self.learning_rate * gradient_b1
-
-        self.input_to_hidden_weights[1][0] -= self.learning_rate * gradient_n2_w1
-        self.input_to_hidden_weights[1][1] -= self.learning_rate * gradient_n2_w2
-        self.input_to_hidden_bias[1] -= self.learning_rate * gradient_b2
+        self.input_to_hidden_weights -= self.learning_rate * gradient_hidden_weights
+        self.input_to_hidden_bias -= self.learning_rate * gradient_hidden_bias
+        self.hidden_to_output_weights -= self.learning_rate * gradient_output_weights.T
+        self.hidden_to_output_bias -= self.learning_rate * gradient_b3
 
         return loss

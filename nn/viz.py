@@ -82,8 +82,8 @@ def animate_weights(
             "w_i2_h1": item.input_to_hidden_weights[1][0],
             "w_i1_h2": item.input_to_hidden_weights[0][1],
             "w_i2_h2": item.input_to_hidden_weights[1][1],
-            "w_h1_o1": item.hidden_to_output_weights[0],
-            "w_h2_o1": item.hidden_to_output_weights[1],
+            "w_h1_o1": item.hidden_to_output_weights[0][0],
+            "w_h2_o1": item.hidden_to_output_weights[1][0],
         }
 
         frame_traces = []

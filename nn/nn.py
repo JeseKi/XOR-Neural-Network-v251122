@@ -1,10 +1,11 @@
-from typing import Callable
 
 import numpy as np
 from numpy.random._generator import Generator
 from numpy import random
 
 from nn.schemas import Input, Target
+from nn.activation import ActivationType, activation, derivative
+from nn.loss import LossType, loss, grad
 
 
 class XORNeuralNetwork:
@@ -13,14 +14,8 @@ class XORNeuralNetwork:
         self.rng: Generator = random.default_rng(seed)
         self.learning_rate: float = learning_rate
 
-        self.sigmoid: Callable[[np.ndarray], np.ndarray] = lambda x: 1 / (1 + np.exp(-x))
-        self.sigmoid_derivative: Callable[[np.ndarray], np.ndarray] = lambda x: x * (1 - x)
-        self.mean_squared_error: Callable[[float, float], float] = (
-            lambda output, answer: 1 / 2 * (output - answer) ** 2
-        )
-        self.mean_squared_error_derivative: Callable[[float, float], float] = (
-            lambda output, answer: output - answer
-        )
+        self.activation_type: ActivationType = ActivationType.LEAKY_RELU
+        self.loss_type: LossType = LossType.MSE
 
         # init variable
         self.W1: np.ndarray = self.rng.uniform(size=(2, 2), low=-1, high=1)
@@ -35,30 +30,26 @@ class XORNeuralNetwork:
         input_arr = np.array([[input.x1, input.x2]]) # shape(1, 2)
 
         z1 = input_arr @ self.W1 + self.bias1 # shape(1, 2)
-        h1 = self.sigmoid(z1)
+        h1 = activation(self.activation_type, z1)
         self.h1 = h1
 
         z2 = h1 @ self.W2 + self.bias2 # shape(1, 1)
-        h2 = self.sigmoid(z2)
+        h2 = activation(self.activation_type, z2)
         self.h2 = h2
 
         return Target(y=h2[0])
 
     def backward(self, input: Input, target: Target) -> float:
         input_hidden_arr = np.array([[input.x1, input.x2]]) # shape(1, 2)
-        loss = self.mean_squared_error(self.h2[0], target.y)
+        _loss = loss(self.loss_type, self.h2[0], np.array([target.y]))
 
-        grad_loss = self.mean_squared_error_derivative(
-            self.h2[0], target.y
-        )
-        grad_h2 = self.sigmoid_derivative(
-            self.h2[0]
-        )
+        grad_loss = grad(self.loss_type, self.h2[0], np.array([target.y]))
+        grad_h2 = derivative(self.activation_type, self.h2[0])
         grad_output = grad_loss * grad_h2 # shape(1, 1)
         grad_W2 = grad_output * self.h1 # shape(1, 2)
         grad_bias2 = grad_output # shape(1, 1)
 
-        grad_h1 = self.sigmoid_derivative(self.h1) # shape(1, 2)
+        grad_h1 = derivative(self.activation_type, self.h1) # shape(1, 2)
         grad_hidden = (grad_output @ self.W2.T) * grad_h1 # shape(1, 2)
         grad_W1 = input_hidden_arr.T @ grad_hidden # shape(2, 2)
         grad_bias1 = grad_hidden # shape(1, 2)
@@ -68,4 +59,9 @@ class XORNeuralNetwork:
         self.W2 -= self.learning_rate * grad_W2.T
         self.bias2 -= self.learning_rate * grad_bias2
 
-        return loss
+        return _loss
+
+class NeuralNetwork:
+    def __init__(self, seed: int = 42, learning_rate: float = 0.01) -> None:
+        self.rng: Generator = random.default_rng(seed)
+        self.learn_rate: float = learning_rate
